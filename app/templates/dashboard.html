@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not result %}
+  <section class="card empty">
+    <h1>No scan yet</h1>
+    <p>Press <strong>Run scan now</strong>. The scanner reads your AWS account (it changes nothing) and lists what needs attention.</p>
+  </section>
+{% else %}
+  <div class="head">
+    <div>
+      <h1>{{ total }} finding{{ '' if total == 1 else 's' }}</h1>
+      <p class="muted">
+        Scanned {{ result.started_at|localtime }} &middot; regions: {{ result.regions|join(', ') }}
+        &middot; {{ result.checks_run }} check runs
+      </p>
+    </div>
+  </div>
+
+  <section class="tiles">
+    {% for s in severities %}
+      <a class="tile sev-{{ s }}" href="{{ url_for('dashboard', severity=s, category=category) }}">
+        <span class="n">{{ by_severity.get(s, 0) }}</span><span class="l">{{ s|capitalize }}</span>
+      </a>
+    {% endfor %}
+  </section>
+
+  <section class="chips">
+    <a class="chip {{ 'on' if not category }}" href="{{ url_for('dashboard', severity=severity) }}">All categories</a>
+    {% for c in categories %}
+      <a class="chip {{ 'on' if category == c }}" href="{{ url_for('dashboard', category=c, severity=severity) }}">
+        {{ c }} <b>{{ by_category.get(c, 0) }}</b>
+      </a>
+    {% endfor %}
+    {% if severity or category %}<a class="chip reset" href="{{ url_for('dashboard') }}">Clear filters</a>{% endif %}
+  </section>
+
+  {% if result.errors %}
+  <section class="card warn">
+    <h2>Checks that could not run</h2>
+    <p class="muted">Usually a missing permission. The results below leave these areas out.</p>
+    <ul>
+      {% for e in result.errors %}<li><strong>{{ e.title }}</strong> ({{ e.region }}): {{ e.message }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    {% if findings %}
+    <div class="wrap">
+      <table class="table">
+        <thead><tr><th>Severity</th><th>Category</th><th>Resource</th><th>Finding</th><th>What to do</th></tr></thead>
+        <tbody>
+          {% for f in findings %}
+          <tr>
+            <td data-label="Severity"><span class="badge sev-{{ f.severity }}">{{ f.severity }}</span></td>
+            <td data-label="Category">{{ f.category }}<div class="muted small">{{ f.control_area }}</div></td>
+            <td data-label="Resource"><code>{{ f.resource }}</code><div class="muted small">{{ f.region }}</div></td>
+            <td data-label="Finding"><strong>{{ f.title }}</strong><div class="muted small">{{ f.detail }}</div></td>
+            <td data-label="What to do">{{ f.recommendation }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="empty-note">{{ 'Nothing to report for this filter.' if total else 'No findings. Everything the scanner checks looks fine.' }}</p>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}

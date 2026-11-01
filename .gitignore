@@ -1,0 +1,14 @@
+# secrets and keys: never commit these
+.env
+*.env
+*.pem
+.aws/
+
+# Python and tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store

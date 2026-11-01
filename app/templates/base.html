@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Cloud hygiene scanner{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ commit }}">
+</head>
+<body>
+<header class="topbar">
+  <span class="brand"><span class="mark">CH</span> Cloud hygiene scanner</span>
+  <form method="post" action="{{ url_for('run_now') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn primary" type="submit">Run scan now</button>
+  </form>
+</header>
+<main class="page">{% block content %}{% endblock %}</main>
+<footer class="foot">
+  Version <code>{{ commit }}</code> &middot; built {{ build_time }} &middot; read-only scan of one AWS account.
+  Findings are study guidance, not a formal audit or compliance certificate.
+</footer>
+</body>
+</html>
